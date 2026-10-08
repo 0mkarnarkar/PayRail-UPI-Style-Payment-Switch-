@@ -5,7 +5,6 @@ Each bank instance exposes these endpoints for the payment switch to call.
 
 from flask import Blueprint, request, jsonify
 from bank_service.models import db, Account, Transaction, LedgerEntry
-from datetime import datetime, timezone
 import uuid
 
 bank_bp = Blueprint("bank", __name__)
@@ -65,8 +64,11 @@ def debit():
     # Idempotency check
     existing = Transaction.query.filter_by(idempotency_key=data["idempotency_key"]).first()
     if existing:
-        return jsonify({"status": existing.status, "transaction_id": existing.id,
-                         "message": "Duplicate request — returning original result"}), 200
+        return jsonify({
+            "status": existing.status,
+            "transaction_id": existing.id,
+            "message": "Duplicate request — returning original result"
+        }), 200
 
     account = Account.query.filter_by(upi_id=data["upi_id"]).first()
     if not account:
