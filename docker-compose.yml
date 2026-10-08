@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  payrail:
+    build: .
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+      - "5002:5002"
+    environment:
+      - BANK_A_URL=http://127.0.0.1:5001
+      - BANK_B_URL=http://127.0.0.1:5002
+      - SWITCH_PORT=5000
+    restart: unless-stopped
+    volumes:
+      - payrail-data:/app/data
+
+volumes:
+  payrail-data:

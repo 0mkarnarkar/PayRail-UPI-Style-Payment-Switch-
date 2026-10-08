@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayRail — Payment Switch Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Ambient glow -->
+    <div class="ambient">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Top Bar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="brand">
+                <div class="brand-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect width="28" height="28" rx="7" fill="url(#g1)"/>
+                        <path d="M7 10.5h4.5l3.5 7H10.5L7 10.5z" fill="rgba(255,255,255,.9)"/>
+                        <path d="M13 10.5h4.5l3.5 7H16.5L13 10.5z" fill="rgba(255,255,255,.45)"/>
+                        <defs><linearGradient id="g1" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <span class="brand-name">PayRail</span>
+                <span class="brand-tag">SWITCH</span>
+            </div>
+        </div>
+        <div class="topbar-center">
+            <nav class="tab-nav" id="tabNav">
+                <button class="tn active" data-tab="overview">Overview</button>
+                <button class="tn" data-tab="transfer">Transfer</button>
+                <button class="tn" data-tab="transactions">Ledger</button>
+                <button class="tn" data-tab="banks">Banks</button>
+                <button class="tn" data-tab="chaos">Chaos</button>
+                <button class="tn" data-tab="reconcile">Audit</button>
+                <div class="tn-indicator" id="tnIndicator"></div>
+            </nav>
+        </div>
+        <div class="topbar-right">
+            <div class="live-pill"><span class="live-dot"></span>Live</div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- ═══ OVERVIEW ═══ -->
+        <section class="tab-panel active" id="tab-overview">
+            <!-- Network Topology -->
+            <div class="network-card">
+                <div class="nc-node nc-bank-a" id="nodeA">
+                    <div class="nc-icon a">A</div>
+                    <span>Bank A</span>
+                    <span class="nc-status" id="statusA">●</span>
+                </div>
+                <div class="nc-edge nc-edge-left" id="edgeLeft">
+                    <svg width="100%" height="40" preserveAspectRatio="none"><line x1="0" y1="20" x2="100%" y2="20" stroke="url(#edgeGrad)" stroke-width="2" stroke-dasharray="6 4" class="edge-line"/><defs><linearGradient id="edgeGrad"><stop stop-color="#6366f1" stop-opacity=".3"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs></svg>
+                    <div class="nc-pulse" id="pulseLeft"></div>
+                </div>
+                <div class="nc-node nc-switch" id="nodeSwitch">
+                    <div class="nc-icon switch">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 6h12M3 9h12M3 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </div>
+                    <span>Switch</span>
+                    <span class="nc-status on" id="statusSwitch">●</span>
+                </div>
+                <div class="nc-edge nc-edge-right" id="edgeRight">
+                    <svg width="100%" height="40" preserveAspectRatio="none"><line x1="0" y1="20" x2="100%" y2="20" stroke="url(#edgeGrad2)" stroke-width="2" stroke-dasharray="6 4" class="edge-line"/><defs><linearGradient id="edgeGrad2"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#0ea5e9" stop-opacity=".3"/></linearGradient></defs></svg>
+                    <div class="nc-pulse" id="pulseRight"></div>
+                </div>
+                <div class="nc-node nc-bank-b" id="nodeB">
+                    <div class="nc-icon b">B</div>
+                    <span>Bank B</span>
+                    <span class="nc-status" id="statusB">●</span>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="metrics" id="metricsRow">
+                <div class="m-card">
+                    <div class="m-top"><span class="m-label">Volume</span><div class="m-badge blue">↗</div></div>
+                    <div class="m-value" id="metTotal" data-count="0">0</div>
+                    <div class="m-bar"><div class="m-fill blue" id="barTotal" style="width:0%"></div></div>
+                    <span class="m-sub">Total payments processed</span>
+                </div>
+                <div class="m-card">
+                    <div class="m-top"><span class="m-label">Success</span><div class="m-badge green">✓</div></div>
+                    <div class="m-value green" id="metSuccess" data-count="0">0</div>
+                    <div class="m-bar"><div class="m-fill green" id="barSuccess" style="width:0%"></div></div>
+                    <span class="m-sub" id="metSuccessPct">—</span>
+                </div>
+                <div class="m-card">
+                    <div class="m-top"><span class="m-label">Reversed</span><div class="m-badge amber">↩</div></div>
+                    <div class="m-value amber" id="metReversed" data-count="0">0</div>
+                    <div class="m-bar"><div class="m-fill amber" id="barReversed" style="width:0%"></div></div>
+                    <span class="m-sub" id="metReversedPct">—</span>
+                </div>
+                <div class="m-card">
+                    <div class="m-top"><span class="m-label">Failed</span><div class="m-badge red">✗</div></div>
+                    <div class="m-value red" id="metFailed" data-count="0">0</div>
+                    <div class="m-bar"><div class="m-fill red" id="barFailed" style="width:0%"></div></div>
+                    <span class="m-sub" id="metFailedPct">—</span>
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="card">
+                <div class="card-head"><h2>Live Activity</h2><button class="btn-sm" id="refreshOverview">Refresh</button></div>
+                <div class="feed" id="activityFeed">
+                    <div class="feed-empty" id="feedEmpty">No activity yet — make your first transfer</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ TRANSFER ═══ -->
+        <section class="tab-panel" id="tab-transfer">
+            <div class="transfer-grid">
+                <div class="card tf-card">
+                    <div class="card-head"><h2>New Payment</h2></div>
+                    <div class="card-body">
+                        <!-- Pipeline visualization -->
+                        <div class="pipeline" id="pipeline">
+                            <div class="pipe-step" id="pipeDebit"><div class="pipe-dot"></div><span>Debit Sender</span></div>
+                            <div class="pipe-line"></div>
+                            <div class="pipe-step" id="pipeCredit"><div class="pipe-dot"></div><span>Credit Receiver</span></div>
+                            <div class="pipe-line"></div>
+                            <div class="pipe-step" id="pipeSettle"><div class="pipe-dot"></div><span>Settle</span></div>
+                        </div>
+
+                        <div class="f-row">
+                            <div class="f-group">
+                                <label>From</label>
+                                <div class="f-input-row">
+                                    <div class="avatar a-sender" id="senderAvatar">A</div>
+                                    <input type="text" id="senderInput" value="asha@bankA" spellcheck="false">
+                                </div>
+                            </div>
+                            <div class="f-arrow">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M14 7l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                            <div class="f-group">
+                                <label>To</label>
+                                <div class="f-input-row">
+                                    <div class="avatar a-receiver" id="receiverAvatar">N</div>
+                                    <input type="text" id="receiverInput" value="neha@bankB" spellcheck="false">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="f-row">
+                            <div class="f-group">
+                                <label>Amount</label>
+                                <div class="f-input-row has-prefix">
+                                    <span class="f-prefix">₹</span>
+                                    <input type="number" id="amountInput" value="1000" min="1">
+                                </div>
+                            </div>
+                            <div class="f-group">
+                                <label>Idempotency Key <span class="opt">optional</span></label>
+                                <input type="text" id="idempotencyInput" placeholder="Auto-generated" spellcheck="false">
+                            </div>
+                        </div>
+                        <button class="btn-pay" id="payBtn">
+                            <span id="payBtnText">Send Payment</span>
+                            <div class="spinner" id="paySpinner"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result Card -->
+                <div class="card result-card" id="resultCard" style="display:none;">
+                    <div class="result-accent" id="resultAccent"></div>
+                    <div class="card-body">
+                        <div class="result-top">
+                            <div class="result-emoji" id="resultEmoji"></div>
+                            <div><h3 id="resultTitle"></h3><p id="resultSub"></p></div>
+                        </div>
+                        <pre class="result-code" id="resultCode"></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ TRANSACTIONS ═══ -->
+        <section class="tab-panel" id="tab-transactions">
+            <div class="card">
+                <div class="card-head"><h2>Transaction Ledger</h2><button class="btn-sm" id="refreshTxns">Refresh</button></div>
+                <div class="tbl-wrap">
+                    <table><thead><tr><th>Time</th><th>ID</th><th>Sender</th><th>Receiver</th><th>Amount</th><th>Status</th><th>Step</th></tr></thead><tbody id="txnBody"></tbody></table>
+                    <div class="feed-empty" id="txnEmpty">No transactions recorded</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ BANKS ═══ -->
+        <section class="tab-panel" id="tab-banks">
+            <div class="banks-grid" id="banksGrid"></div>
+        </section>
+
+        <!-- ═══ CHAOS ═══ -->
+        <section class="tab-panel" id="tab-chaos">
+            <div class="chaos-hero">
+                <div class="chaos-visual">
+                    <div class="chaos-ring" id="chaosRing">
+                        <svg viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/>
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="url(#chaosGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" id="chaosCircle" transform="rotate(-90 60 60)"/>
+                            <defs><linearGradient id="chaosGrad"><stop stop-color="#ef4444"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>
+                        </svg>
+                        <div class="chaos-center" id="chaosCenter">OFF</div>
+                    </div>
+                </div>
+                <div class="chaos-info">
+                    <h2>Chaos Engineering</h2>
+                    <p>Inject credit-side failures to verify the switch's automatic debit reversal mechanism. When enabled, every credit operation returns HTTP 500, triggering the safety net.</p>
+                    <label class="switch-label">
+                        <input type="checkbox" id="chaosCheckbox">
+                        <span class="switch-track"><span class="switch-thumb"></span></span>
+                        <span class="switch-text" id="chaosText">Enable Failure Injection</span>
+                    </label>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-head"><h2>Verification Steps</h2></div>
+                <div class="card-body">
+                    <div class="v-steps">
+                        <div class="vs"><div class="vs-n">1</div><div class="vs-t"><strong>Enable injection</strong> → toggle above</div></div>
+                        <div class="vs"><div class="vs-n">2</div><div class="vs-t"><strong>Send payment</strong> → Transfer tab, any amount</div></div>
+                        <div class="vs"><div class="vs-n">3</div><div class="vs-t"><strong>Observe reversal</strong> → debit ✓, credit ✗, auto-reverse ↩</div></div>
+                        <div class="vs"><div class="vs-n">4</div><div class="vs-t"><strong>Verify ledger</strong> → Audit tab, balances should match</div></div>
+                        <div class="vs"><div class="vs-n">5</div><div class="vs-t"><strong>Disable &amp; compare</strong> → normal payment for contrast</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ RECONCILIATION ═══ -->
+        <section class="tab-panel" id="tab-reconcile">
+            <div class="audit-header">
+                <div><h2>Ledger Audit</h2><p>Verify double-entry ledger consistency</p></div>
+                <button class="btn-audit" id="runReconcile">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Run Audit
+                </button>
+            </div>
+            <div id="reconcileResults"><div class="card"><div class="feed-empty">Click <strong>Run Audit</strong> to verify balances</div></div></div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
